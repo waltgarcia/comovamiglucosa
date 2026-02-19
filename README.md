@@ -71,15 +71,6 @@ streamlit run streamlit_app.py
 
 > Importante: no usar `python streamlit_app.py`.
 
-## Publicación en Streamlit Community Cloud
-
-1. Sube el proyecto a GitHub.
-2. Entra a https://share.streamlit.io y crea una app nueva.
-3. Selecciona:
-   - Repository: `waltgarcia/comovamiglucosa`
-   - Branch: `main`
-   - Main file path: `streamlit_app.py`
-
 ## Estructura del proyecto
 
 - `streamlit_app.py`: interfaz principal y flujo de usuario.
