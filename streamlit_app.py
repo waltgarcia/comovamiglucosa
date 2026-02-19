@@ -148,16 +148,20 @@ def ensure_authentication() -> None:
 
     with tab_create:
         with st.form("create_patient_form"):
-            patient_code = st.text_input("Código único de paciente", help="Solo letras y números, sin espacios").strip().lower()
+            patient_code = st.text_input(
+                "Código único de paciente",
+                help="Puede ser numérico o alfanumérico. Se permiten guion (-) y guion bajo (_), sin espacios.",
+            ).strip().lower()
             patient_name = st.text_input("Nombre del paciente")
-            pin = st.text_input("Crear PIN (mínimo 4 dígitos)", type="password")
+            pin = st.text_input("Crear PIN (4 dígitos)", type="password")
             pin_confirm = st.text_input("Confirmar PIN", type="password")
             accepted = st.checkbox("Acepto el uso y almacenamiento de mis datos de salud.")
             created = st.form_submit_button("Crear cuenta")
 
         if created:
-            if not patient_code or not patient_code.replace("_", "").isalnum():
-                st.error("El código de paciente debe contener solo letras, números o guion bajo.")
+            code_valid = patient_code and all(ch.isalnum() or ch in "_-" for ch in patient_code)
+            if not code_valid:
+                st.error("El código de paciente debe contener solo letras, números, guion (-) o guion bajo (_).")
                 st.stop()
             if get_user(patient_code):
                 st.error("Ese código ya existe. Usa otro código o entra con tu PIN.")
@@ -194,6 +198,13 @@ def ensure_authentication() -> None:
 ensure_authentication()
 fernet = st.session_state["fernet"]
 patient_code = st.session_state["patient_code"]
+
+if st.sidebar.button("Cambiar de paciente / Crear otro"):
+    st.session_state.pop("authenticated", None)
+    st.session_state.pop("fernet", None)
+    st.session_state.pop("patient_code", None)
+    st.session_state.pop("patient_name", None)
+    st.rerun()
 
 if st.sidebar.button("Cerrar sesión"):
     st.session_state.pop("authenticated", None)

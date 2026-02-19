@@ -2,8 +2,8 @@ from datetime import datetime
 
 
 def validate_pin(pin: str) -> tuple[bool, str]:
-    if len(pin) < 4:
-        return False, "El PIN debe tener al menos 4 dígitos."
+    if len(pin) != 4:
+        return False, "El PIN debe tener exactamente 4 dígitos."
     if not pin.isdigit():
         return False, "El PIN debe contener solo números."
     return True, ""

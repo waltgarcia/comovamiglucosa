@@ -1,94 +1,106 @@
-# ¿Cómo va mi glucosa? (Web MVP)
+# ¿Cómo va mi glucosa?
 
-Aplicación web en Streamlit para pacientes con diabetes que necesitan registrar información clínica y compartirla con su médico.
+Aplicación web para que pacientes registren sus cifras de glucosa en formato digital y las compartan de forma ordenada con su médico.
 
-## Funcionalidades principales
+## Objetivo
 
-- Persistencia real en SQLite (`data/app.db`).
-- Cuentas por paciente (código + PIN) y consentimiento explícito.
-- Aislamiento de datos por paciente (cada usuario ve solo sus registros).
-- Registro clínico ampliado:
-   - Glucosa con fecha/hora, contexto, relación con comida, síntomas, medicación, dosis y notas.
-   - HbA1c.
-   - Eventos relevantes (síntomas/actividad/ajustes).
-- Validaciones de captura (incluye control de duplicados por fecha/hora y tipo).
-- Resumen médico automático:
-   - Promedios 7/14/30 días.
-   - Mínimo/máximo.
-   - % de mediciones en rango objetivo.
-   - Conteo de episodios hipo/hiper.
-- Gráficas de tendencia con rangos personalizados por el médico.
-- Historial editable y eliminación de registros.
-- Vista cronológica unificada.
-- Exportación clínica en 1 clic:
-   - CSV, Excel y PDF.
-- Compartición segura:
-   - Paquete cifrado temporal para enviar al doctor.
-- Recordatorios configurables (base web preparada para futura versión móvil con push).
+- Reemplazar hojas en papel que pueden perderse o dañarse.
+- Facilitar seguimiento clínico con datos estructurados.
+- Permitir al doctor valorar tendencias y episodios con mejor contexto.
 
-## Estructura del proyecto
+## Qué incluye
 
-- `streamlit_app.py`: interfaz principal.
-- `app/db.py`: persistencia SQLite.
-- `app/security.py`: hashing de PIN y cifrado.
-- `app/validation.py`: validaciones de datos.
-- `app/analytics.py`: métricas y línea de tiempo.
-- `app/exporters.py`: exportaciones CSV/Excel/PDF y paquete cifrado.
-- `tests/`: pruebas básicas.
+- Cuentas por paciente (`código de paciente` + `PIN de 4 dígitos`).
+- Aislamiento de datos por paciente (cada uno ve solo su información).
+- Registro de glucosa simplificado con 3 opciones:
+  - Antes de la comida
+  - Después de la comida
+  - Glucosa al azar
+- Fecha y hora automáticas al guardar registros.
+- Campo de unidades si se selecciona insulina.
+- Recomendaciones inmediatas según valor de glucosa.
+- Registro de HbA1c y eventos clínicos relevantes.
+- Resumen automático (7/14/30 días, min/máx, % en rango, hipo/hiper).
+- Gráficas de tendencia con rangos personalizados por el doctor.
+- Historial editable y vista cronológica unificada.
+- Exportación en 1 clic: CSV, Excel y PDF.
+- Compartición segura mediante paquete cifrado (`.cmg`) con clave temporal.
 
-## Instalación y ejecución
+## Flujo de uso
 
-1. Instala dependencias:
+### Paciente
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+1. Crea cuenta en **Crear cuenta paciente**.
+2. Define un código y un PIN de 4 números.
+3. Registra mediciones y eventos en la pestaña **Registro**.
+4. Exporta o comparte datos en **Exportar y compartir**.
 
-2. Ejecuta la app:
-
-    ```bash
-    streamlit run streamlit_app.py
-    ```
-
-3. Primer uso:
-
-   - En la pestaña **Crear cuenta paciente**, define un código único y tu PIN.
-   - El código puede ser alfanumérico o numérico (ejemplo: `12345` o `paciente01`).
-   - El PIN debe tener 4 números.
-   - Luego ingresa con ese código y PIN en **Ingresar**.
-
-## Flujo paciente-doctor
-
-Esta app está pensada para dos objetivos prácticos:
-
-- Que los pacientes tengan un registro digital continuo de sus mediciones de glucosa.
-- Evitar depender de hojas en papel que se pueden recortar, extraviar o deteriorar.
-- Que el doctor pueda valorar tendencias, episodios y cumplimiento con información más ordenada.
-
-### Para pacientes
-
-- Registra tus cifras de glucosa y eventos clínicos en la app.
-- Descarga y comparte un paquete cifrado desde la sección **Exportar y compartir**.
-- Comparte el archivo cifrado por un canal y la clave por otro canal diferente para mayor seguridad.
-
-### Para doctores
+### Doctor
 
 Para revisar información de un paciente se requieren:
 
 - Código del paciente.
-- Archivo cifrado compartido (`.cmg`).
-- Clave de cifrado temporal (ejemplo):
+- Archivo cifrado `.cmg`.
+- Clave de cifrado temporal (enviada por canal separado).
 
-  `bt65lYn_O4-K3bK-GgKE3nYRiey9j8hf9v7O-5ShTj8=`
+Ejemplo de clave cifrada:
 
-Con estos elementos, el doctor puede usar la opción de descifrado en la app para valorar las cifras de glucosa y su contexto clínico.
+`bt65lYn_O4-K3bK-GgKE3nYRiey9j8hf9v7O-5ShTj8=`
 
-## Seguridad y despliegue recomendado
+Con esos elementos, el doctor puede usar el módulo de descifrado dentro de la app para valorar cifras y contexto clínico.
 
-- En producción, define `APP_PEPPER` en `st.secrets`.
-- Despliega siempre con HTTPS para proteger datos en tránsito.
-- El paquete compartido cifrado se recomienda enviarlo con la clave por un canal distinto.
+## Reglas de acceso
 
-## Roadmap hacia móvil
+- El código de paciente puede ser numérico o alfanumérico.
+- Se permiten letras, números, guion (`-`) y guion bajo (`_`).
+- El PIN debe tener exactamente 4 dígitos numéricos.
 
-La lógica ya está desacoplada en módulos para facilitar migración futura a API + app móvil (Flutter/React Native), manteniendo reglas clínicas, seguridad y exportación.
+## Instalación local
+
+1. Instala dependencias:
+
+```bash
+pip install -r requirements.txt
+```
+
+2. Ejecuta la app:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+> Importante: no usar `python streamlit_app.py`.
+
+## Publicación en Streamlit Community Cloud
+
+1. Sube el proyecto a GitHub.
+2. Entra a https://share.streamlit.io y crea una app nueva.
+3. Selecciona:
+   - Repository: `waltgarcia/comovamiglucosa`
+   - Branch: `main`
+   - Main file path: `streamlit_app.py`
+
+## Estructura del proyecto
+
+- `streamlit_app.py`: interfaz principal y flujo de usuario.
+- `app/db.py`: persistencia SQLite multi-paciente.
+- `app/security.py`: hash de PIN y cifrado.
+- `app/validation.py`: validaciones de entrada.
+- `app/analytics.py`: métricas y línea de tiempo.
+- `app/exporters.py`: exportación CSV/Excel/PDF y paquete cifrado.
+- `tests/`: pruebas unitarias básicas.
+
+## Solución de problemas
+
+- **No puedo crear paciente nuevo**
+  - Usa el botón lateral **Cambiar de paciente / Crear otro**.
+  - Verifica que el código no exista.
+  - Revisa formato de código y PIN.
+
+- **PIN incorrecto**
+  - Verifica que sean 4 dígitos exactos.
+  - Confirma que ingresas el código correcto del paciente.
+
+## Nota clínica
+
+Esta herramienta es de apoyo y no reemplaza valoración médica. Ante valores extremos o síntomas de alarma, contactar servicios de salud.
