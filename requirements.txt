@@ -1,2 +1,7 @@
 streamlit
 pandas
+altair
+cryptography
+reportlab
+openpyxl
+pytest
